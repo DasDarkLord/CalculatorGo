@@ -117,6 +117,13 @@ func (parser *NodeParser) parseFactor() TreeNode {
 			nodeType: "number",
 			value:    token.value,
 		}.Copy()
+	} else if parser.tokens[parser.index].tokenType == ConstantToken {
+		token := parser.tokens[parser.index]
+		parser.index++
+		return TreeNode{
+			nodeType: "constant",
+			value:    token.value,
+		}
 	}
 
 	err := fmt.Sprintf("unexpected token %s at index %d", parser.tokens[parser.index].ToString(), parser.index)

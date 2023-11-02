@@ -21,6 +21,7 @@ func NewTokenType(ordinal int, id string, word *string) TokenType {
 }
 
 var NumberToken TokenType
+var ConstantToken TokenType
 var AddToken TokenType
 var SubToken TokenType
 var MulToken TokenType
@@ -31,24 +32,26 @@ var TokenTypeValues []TokenType
 func initTypes() {
 	NumberToken = NewTokenType(0, "num", nil)
 
+	ConstantToken = NewTokenType(1, "const", nil)
+
 	addWord := "+"
 	addPointer := &addWord
-	AddToken = NewTokenType(1, "add", addPointer)
+	AddToken = NewTokenType(2, "add", addPointer)
 
 	subWord := "-"
 	subPointer := &subWord
-	SubToken = NewTokenType(2, "sub", subPointer)
+	SubToken = NewTokenType(3, "sub", subPointer)
 
 	mulWord := "*"
 	mulPointer := &mulWord
-	MulToken = NewTokenType(3, "mul", mulPointer)
+	MulToken = NewTokenType(4, "mul", mulPointer)
 
 	divWord := "/"
 	divPointer := &divWord
-	DivToken = NewTokenType(4, "div", divPointer)
+	DivToken = NewTokenType(5, "div", divPointer)
 
 	TokenTypeValues = []TokenType{
-		NumberToken,
+		NumberToken, ConstantToken,
 		AddToken, SubToken, MulToken, DivToken,
 	}
 }
@@ -84,6 +87,18 @@ func lexString(str string) []Token {
 					value:     number,
 				})
 			}
+			break
+		case unicode.IsLetter(runes[position]):
+			constName := ""
+			for position < len(runes) && (unicode.IsLetter(runes[position])) {
+				constName += string(runes[position])
+				position++
+			}
+			position--
+			tokens = append(tokens, Token{
+				tokenType: ConstantToken,
+				value:     constName,
+			})
 			break
 		default:
 			for _, tokenType := range TokenTypeValues {
@@ -131,7 +146,7 @@ func main() {
 
 		fmt.Println(node.ToString())
 
-		evaluated := evalTree(node)
+		evaluated := evalTree(node, map[string]any{})
 
 		fmt.Println(evaluated)
 	}
